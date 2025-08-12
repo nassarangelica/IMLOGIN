@@ -2,13 +2,13 @@
   {
     "id": 1,
     "profile": "image.jpeg",
-    "name": "ELieser",
-    "age": 12
+    "name": "Conrad",
+    "age": 21
   },
   {
     "id": 2,
     "profile": "image.jpeg",
-    "name": "Palomares",
-    "age": 12
+    "name": "Angelica",
+    "age": 21
   }
 ]

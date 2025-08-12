@@ -1,69 +1,44 @@
 const User = require("../models/auth-model");
 const bcrypt = require("bcryptjs");
 
-// REGISTER
 const register = async (req, res) => {
   const { name, email, password } = req.body;
-
-  let errors = [];
-
-  if (!name) errors.push({ field: "name", message: "Name is required." });
-  if (!email) errors.push({ field: "email", message: "Email is required." });
-  if (!password)
-    errors.push({ field: "password", message: "Password is required." });
-
-  if (errors.length > 0) return res.status(400).json(errors);
+  if (!name || !email || !password)
+    return res.status(400).json({ message: "All fields are required." });
 
   try {
-    const emailExists = await User.findUserByEmail(email);
-    if (emailExists) {
+    if (await User.findUserByEmail(email))
       return res.status(400).json({ message: "Email already registered" });
-    }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
+    const hashedPassword = await bcrypt.hash(password, 10);
     await User.createUser(name, email, hashedPassword);
 
-    res.status(201).json({ message: "User has been created." });
-  } catch (error) {
-    console.error(error);
+    res.status(201).json({ message: "User created." });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// LOGIN
 const login = async (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: "Email and password are required." });
-  }
+  if (!email || !password)
+    return res.status(400).json({ message: "All fields are required." });
 
   try {
     const user = await User.findUserByEmail(email);
-    if (!user) {
+    if (!user || !(await bcrypt.compare(password, user.password)))
       return res.status(400).json({ message: "Invalid email or password." });
-    }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password." });
-    }
-
-    res.status(200).json({
-      message: "Login successful",
-      user: { id: user.id, name: user.name, email: user.email },
-    });
-  } catch (error) {
-    console.error(error);
+    res.status(200).json({ message: "Login successful" });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-module.exports = {
-  register,
-  login,
-};
+module.exports = { register, login };
+
+
+//sir wanako kasabot na error nako pero ni run nato siya HAHAHAHAAHHUHUHUHU
+
